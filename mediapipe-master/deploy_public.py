@@ -28,6 +28,11 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 def check_ngrok():
     """检查ngrok是否安装"""
     try:
+        # 首先检查本地目录
+        if os.path.exists("ngrok.exe"):
+            result = subprocess.run(['./ngrok.exe', 'version'], capture_output=True, text=True)
+            return result.returncode == 0
+        # 然后检查系统PATH
         result = subprocess.run(['ngrok', 'version'], capture_output=True, text=True)
         return result.returncode == 0
     except FileNotFoundError:
@@ -62,12 +67,12 @@ def get_ngrok_url():
         pass
     return None
 
-def start_ngrok():
-    """启动ngrok隧道"""
+def start_ngrok_with_path(ngrok_path):
+    """使用指定路径启动ngrok隧道"""
     try:
         # 启动ngrok
         ngrok_process = subprocess.Popen(
-            ['ngrok', 'http', '8080'],
+            [ngrok_path, 'http', '8080'],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
@@ -98,6 +103,12 @@ def main():
         install_ngrok()
         return
     
+    # 获取ngrok的绝对路径
+    if os.path.exists("ngrok.exe"):
+        ngrok_path = os.path.abspath("ngrok.exe")
+    else:
+        ngrok_path = "ngrok"
+    
     # 检查构建文件
     if not os.path.exists(DIST_DIR):
         print("📦 构建文件不存在，开始构建前端...")
@@ -123,7 +134,7 @@ def main():
     time.sleep(2)
     
     print("🌐 启动ngrok隧道...")
-    ngrok_process, public_url = start_ngrok()
+    ngrok_process, public_url = start_ngrok_with_path(ngrok_path)
     
     if public_url:
         print("✅ 公网部署成功!")
