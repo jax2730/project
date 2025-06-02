@@ -1,0 +1,12 @@
+🔑 ngrok设置步骤:
+
+1. 访问 https://dashboard.ngrok.com/signup 注册账号
+2. 登录后访问 https://dashboard.ngrok.com/get-started/your-authtoken
+3. 复制你的authtoken
+4. 运行命令: ./ngrok.exe authtoken YOUR_TOKEN
+
+💡 示例:
+./ngrok.exe authtoken 2abc123def456ghi789jkl
+
+✅ 设置完成后运行:
+python deploy_public.py 
